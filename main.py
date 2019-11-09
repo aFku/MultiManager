@@ -18,7 +18,6 @@ class SystemNotFound(Exception):
 class LoginPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        parent.system = read_system()
         controller.tab_control.select(controller.sessions[parent.session_number])
 
 
@@ -171,7 +170,7 @@ class Process_ssh(Process):
             stdout = decode_winShell(stdout)
         else:
             stdout = None
-        return stdout
+        return decode_winShell(stdout)
 
     def kill(self, parent, choice):
         pid = self.getpid(self.processbox.get(tk.ANCHOR))
@@ -188,11 +187,22 @@ class Process_ssh(Process):
             self.update_list(parent)
 
 
-class test_ssh(tk.Frame):
+class Sockets_ssh(Sockets):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.processbox = tk.Listbox(self, width=75, height=10, selectmode=tk.SINGLE)
-        self.processbox.grid(column=0, row=0)
+        Sockets.__init__(self, parent, controller)
+        self.update_list(parent)
+
+    def dw_socketlist(self, parent):
+        if parent.system == "Unix":
+            stdin, stdout, stderr = parent.ssh.exec_command("ss -nl")
+        elif parent.system == "Win":
+            pass ################fill
+        else:
+            stdout = None
+        return decode_winShell(stdout)
+
+
+
 
 ##################################################### LOCAL PAGES ##################################################
 
@@ -244,7 +254,7 @@ class Sockets_local(Sockets):
 
 
 session_counter = 0
-pages = ((Process_ssh, test_ssh), (Process_local, Sockets_local))
+pages = ((Process_ssh, Sockets_ssh), (Process_local, Sockets_local))
 
 
 #################################################### GLOBAL RANGE METHODS #############################################
@@ -269,21 +279,23 @@ def ssh_login(ip, username, password, session, err_lbl):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        print(session.system)
+
         ssh.connect(ip.get(), username=username.get(), password=password.get(), port=22)
+        session.system = read_system()
         check_remote_os(ip.get(), session)
     except:
         err_lbl.configure(text="Wrong Data!")
     else:
         session.ssh = ssh
-    #try:
+    try:
         session.create_frame("Utilities_remote")
-    #except:
-        #err_lbl.configure(text="Something gone wrong!")
+    except:
+        err_lbl.configure(text="Something gone wrong!")
 
 
 def local_login(session, err_lbl):
     try:
+        session.system = read_system()
         session.create_frame("Utilities_local")
     except:
         err_lbl.configure(text="Something gone wrong!")
