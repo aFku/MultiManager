@@ -133,13 +133,48 @@ class Sockets(tk.Frame):
         buttonsframe.grid(column=0, row=1, sticky=tk.W+tk.E+tk.N+tk.S)
         self.socketbox = tk.Listbox(listframe, width=110, height=15, selectmode=tk.SINGLE)
         self.socketbox.grid(column=0, row=0)
+
+        lbl_fltr = tk.Label(buttonsframe, text="Filters:")
+        lbl_fltr.grid(column=0, row=0)
+        lbl_lip = tk.Label(buttonsframe, text="Local IP:", pady=5)
+        lbl_lip.grid(column=0, row=1)
+        ent_lip = tk.Entry(buttonsframe, width=15)
+        ent_lip.grid(column=0, row=2)
+        lbl_sip = tk.Label(buttonsframe, text="Source IP", pady=5)
+        lbl_sip.grid(column=0, row=3)
+        ent_sip = tk.Entry(buttonsframe, width=15)
+        ent_sip.grid(column=0, row=4)
+        btn_new = ttk.Button(buttonsframe, text="New Session", command=lambda: controller.create_session())
+        btn_new.grid(column=0, row=6)
+
         btn_ref = ttk.Button(buttonsframe, text="Refresh", command=lambda: self.update_list(parent))
-        btn_ref.grid(column=0, row=0)
+        btn_ref.grid(column=1, row=0)
+        lbl_lpr = tk.Label(buttonsframe, text="Local port:", pady=5)
+        lbl_lpr.grid(column=1, row=1)
+        ent_lpr = tk.Entry(buttonsframe, width=15)
+        ent_lpr.grid(column=1, row=2)
+        lbl_spr = tk.Label(buttonsframe, text="Source port:", pady=5)
+        lbl_spr.grid(column=1, row=3)
+        ent_spr = tk.Entry(buttonsframe, width=15)
+        ent_spr.grid(column=1, row=4)
+        parent.create_menu(frame=buttonsframe, column=1, row=5, session=parent)
+
+        lbl_ctp = tk.Label(buttonsframe, text="Connection type:", pady=5)
+        lbl_ctp.grid(column=2, row=1)
+        selected = tk.IntVar()
+        rad_bth = tk.Radiobutton(buttonsframe, text="Both", value=0, variable=selected)
+        rad_bth.grid(column=2, row=2)
+        rad_tcp = tk.Radiobutton(buttonsframe, text="TCP", value=1, variable=selected)
+        rad_tcp.grid(column=2, row=3)
+        rad_udp = tk.Radiobutton(buttonsframe, text="UDP", value=2, variable=selected)
+        rad_udp.grid(column=2, row=4)
+
+        lbl_stt = tk.Label(buttonsframe, text="State")
         btn_src = ttk.Button(buttonsframe, text="Search")
-        btn_src.grid(column=1, row=0)
+        btn_src.grid(column=4, row=0)
         btn_rst = ttk.Button(buttonsframe, text="Reset")
-        btn_rst.grid(column=2, row=0)
-        parent.create_menu(frame=buttonsframe, column=1, row=1, session=parent)
+        btn_rst.grid(column=3, row=0)
+
 
 
     def dw_socketlist(self, parent):
@@ -170,7 +205,7 @@ class Process_ssh(Process):
             stdout = decode_winShell(stdout)
         else:
             stdout = None
-        return decode_winShell(stdout)
+        return stdout
 
     def kill(self, parent, choice):
         pid = self.getpid(self.processbox.get(tk.ANCHOR))
@@ -194,9 +229,9 @@ class Sockets_ssh(Sockets):
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":
-            stdin, stdout, stderr = parent.ssh.exec_command("ss -nl")
+            stdin, stdout, stderr = parent.ssh.exec_command("ss -pnltu")
         elif parent.system == "Win":
-            pass ################fill
+            stdin, stdout, stderr = parent.ssh.exec_command("netstat -anoq")
         else:
             stdout = None
         return decode_winShell(stdout)
@@ -243,9 +278,9 @@ class Sockets_local(Sockets):
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":
-            stdout = decode_winShell(subprocess.check_output(["ss", "-nl"]))
+            stdout = decode_winShell(subprocess.check_output(["ss", "-pnltu"]))
         elif parent.system == "Win":
-            pass ################fill
+            stdout = decode_winShell(subprocess.check_output(["netstat", "-anoq"]))
         else:
             stdout = None
         return stdout
