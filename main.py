@@ -18,6 +18,7 @@ class SystemNotFound(Exception):
 class LoginPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
+        parent.system = read_system()
         controller.tab_control.select(controller.sessions[parent.session_number])
 
 
@@ -268,29 +269,32 @@ def ssh_login(ip, username, password, session, err_lbl):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
+        print(session.system)
         ssh.connect(ip.get(), username=username.get(), password=password.get(), port=22)
         check_remote_os(ip.get(), session)
     except:
         err_lbl.configure(text="Wrong Data!")
     else:
         session.ssh = ssh
-        #try:
-        session.create_frame("Utilities_remote")
-        #except:
-        err_lbl.configure(text="Something gone wrong!")
-
-
-def local_login(session, err_lbl):
     #try:
-        session.system = read_system()
-        session.create_frame("Utilities_local")
+        session.create_frame("Utilities_remote")
     #except:
         #err_lbl.configure(text="Something gone wrong!")
 
 
+def local_login(session, err_lbl):
+    try:
+        session.create_frame("Utilities_local")
+    except:
+        err_lbl.configure(text="Something gone wrong!")
+
+
 def check_remote_os(ip, session):
     try:
-        stdout = subprocess.check_output("ping " + ip).decode()
+        if session.system == "Win":
+            stdout = subprocess.check_output(["ping", str(ip)]).decode()
+        elif session.system == "Unix":
+            stdout = subprocess.check_output(["ping", "-c", "3", str(ip)]).decode()
     except:
         print("Can`t find out os of " + ip)
         session.logout_session()
