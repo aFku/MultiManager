@@ -96,8 +96,6 @@ class Sockets(tk.Frame):
         btn_new = ttk.Button(buttonsframe, text="New Session", command=lambda: controller.create_session())
         btn_new.grid(column=0, row=6)
 
-        btn_ref = ttk.Button(buttonsframe, text="Refresh", command=lambda: self.update_list(parent))
-        btn_ref.grid(column=1, row=0)
         lbl_lpr = tk.Label(buttonsframe, text="Local port:", pady=5)
         lbl_lpr.grid(column=1, row=1)
         self.ent_lpr = tk.Entry(buttonsframe, width=15)
@@ -117,12 +115,27 @@ class Sockets(tk.Frame):
         rad_tcp.grid(column=2, row=3)
         rad_udp = tk.Radiobutton(buttonsframe, text="UDP", value=2, variable=self.selected)
         rad_udp.grid(column=2, row=4)
+        btn_lout = ttk.Button(buttonsframe, text="Log Out", command=lambda: parent.logout_session())
+        btn_lout.grid(column=2, row=6)
 
         lbl_stt = tk.Label(buttonsframe, text="State")
+        lbl_stt.grid(column=3, row=1)
+        cmb_stt = ttk.Combobox(buttonsframe)
+        cmb_stt.grid(column=3, row=2)
+        ####Combobox logic
+        lbl_pid = tk.Label(buttonsframe, text="PID:")
+        lbl_pid.grid(column=3, row=3)
+        self.ent_pid = tk.Entry(buttonsframe, width=15)
+        self.ent_pid.grid(column=3, row=4)
+
+        inv_lbl = tk.Label(buttonsframe, text="", padx=7)
+        inv_lbl.grid(column=4, row=2)
+        btn_ref = ttk.Button(buttonsframe, text="Refresh", command=lambda: self.update_list(parent))
+        btn_ref.grid(column=5, row=2)
         btn_src = ttk.Button(buttonsframe, text="Search")
-        btn_src.grid(column=4, row=0)
+        btn_src.grid(column=5, row=3)
         btn_rst = ttk.Button(buttonsframe, text="Reset")
-        btn_rst.grid(column=3, row=0)
+        btn_rst.grid(column=5, row=4)
 
 
 

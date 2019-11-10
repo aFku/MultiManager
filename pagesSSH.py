@@ -39,7 +39,7 @@ class Sockets_ssh(Sockets):
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":
-            stdin, stdout, stderr = parent.ssh.exec_command("ss -pnltu")
+            stdin, stdout, stderr = parent.ssh.exec_command("netstat -pnltSu")
         elif parent.system == "Win":
             stdin, stdout, stderr = parent.ssh.exec_command("netstat -anoq")
         else:

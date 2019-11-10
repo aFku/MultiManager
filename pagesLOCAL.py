@@ -39,7 +39,7 @@ class Sockets_local(Sockets):
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":
-            stdout = decode_winShell(subprocess.check_output(["ss", "-pnltu"]))
+            stdout = decode_winShell(subprocess.check_output(["ss", "-pnlStu"]))
         elif parent.system == "Win":
             stdout = decode_winShell(subprocess.check_output(["netstat", "-anoq"]))
         else:
