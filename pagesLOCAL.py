@@ -35,7 +35,7 @@ class Process_local(Process):
 class Sockets_local(Sockets):
     def __init__(self, parent, controller):
         Sockets.__init__(self, parent, controller)
-        self.update_list(parent)
+        self.update_list(parent, True)
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":

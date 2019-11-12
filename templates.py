@@ -130,18 +130,22 @@ class Sockets(tk.Frame):
 
         inv_lbl = tk.Label(buttonsframe, text="", padx=7)
         inv_lbl.grid(column=4, row=2)
-        btn_ref = ttk.Button(buttonsframe, text="Refresh", command=lambda: self.update_list(parent))
+        btn_ref = ttk.Button(buttonsframe, text="Refresh", command=lambda: self.update_list(parent, False))
         btn_ref.grid(column=5, row=2)
-        btn_src = ttk.Button(buttonsframe, text="Search")
+        btn_src = ttk.Button(buttonsframe, text="Search", command=lambda: self.update_list(parent, True))
         btn_src.grid(column=5, row=3)
-        btn_rst = ttk.Button(buttonsframe, text="Reset")
+        btn_rst = ttk.Button(buttonsframe, text="Reset", command=lambda: self.rst_ftr())
         btn_rst.grid(column=5, row=4)
 
 
+    def get_filtr(self):
+        print("DEBUG1")#######Debug1
+        return {"Source IP": self.ent_sip.get(), "Local IP": self.ent_lip.get(), "Local port": self.ent_lpr.get(),
+                "Source port": self.ent_spr.get(), "PID": self.ent_pid.get(), "Protocol": self.selected.get(),
+                "State": 1}
 
-    def filtr_prot(self, data):
+    def filtr_prot(self, data, choice):
         ftr_data = [data[0]]
-        choice = self.selected.get()
         for line in data[1:-1]:
             if choice == 1 and line.split().count("tcp"):
                 ftr_data.append(line)
@@ -149,14 +153,26 @@ class Sockets(tk.Frame):
                 ftr_data.append(line)
             elif choice == 0:
                 ftr_data.append(line)
+        print(ftr_data) #### debug
         return ftr_data
+
+    def rst_ftr(self):
+         self.ent_sip.set("")
+         self.ent_lip.set("")
+         self.ent_lpr.set("")
+         self.ent_spr.set("")
+         self.ent_pid.set("")
+         self.selected.set(0)
 
     def dw_socketlist(self, parent):
         pass
 
-    def update_list(self, parent):
+    def update_list(self, parent, new):
         self.socketbox.delete(0, tk.END)
+        if new:
+           self.parameters = self.get_filtr()
         data = self.dw_socketlist(parent)
-        data = self.filtr_prot(data)
+        print(self.parameters["Protocol"]) ######Debug
+        data = self.filtr_prot(data, self.parameters["Protocol"])
         for line in data:
             self.socketbox.insert(tk.END, line)
