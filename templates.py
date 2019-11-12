@@ -139,10 +139,24 @@ class Sockets(tk.Frame):
 
 
 
+    def filtr_prot(self, data):
+        ftr_data = [data[0]]
+        choice = self.selected.get()
+        for line in data[1:-1]:
+            if choice == 1 and line.split().count("tcp"):
+                ftr_data.append(line)
+            elif choice == 2 and line.split().count("udp"):
+                ftr_data.append(line)
+            elif choice == 0:
+                ftr_data.append(line)
+        return ftr_data
+
     def dw_socketlist(self, parent):
         pass
 
     def update_list(self, parent):
         self.socketbox.delete(0, tk.END)
-        for line in self.dw_socketlist(parent):
+        data = self.dw_socketlist(parent)
+        data = self.filtr_prot(data)
+        for line in data:
             self.socketbox.insert(tk.END, line)
