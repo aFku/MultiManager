@@ -120,9 +120,8 @@ class Sockets(tk.Frame):
 
         lbl_stt = tk.Label(buttonsframe, text="State")
         lbl_stt.grid(column=3, row=1)
-        cmb_stt = ttk.Combobox(buttonsframe)
-        cmb_stt.grid(column=3, row=2)
-        ####Combobox logic
+        self.cmb_stt = ttk.Combobox(buttonsframe)
+        self.cmb_stt.grid(column=3, row=2)
         lbl_pid = tk.Label(buttonsframe, text="PID:")
         lbl_pid.grid(column=3, row=3)
         self.ent_pid = tk.Entry(buttonsframe, width=15)
@@ -137,32 +136,59 @@ class Sockets(tk.Frame):
         btn_rst = ttk.Button(buttonsframe, text="Reset", command=lambda: self.rst_ftr())
         btn_rst.grid(column=5, row=4)
 
-
     def get_filtr(self):
-        print("DEBUG1")#######Debug1
         return {"Source IP": self.ent_sip.get(), "Local IP": self.ent_lip.get(), "Local port": self.ent_lpr.get(),
                 "Source port": self.ent_spr.get(), "PID": self.ent_pid.get(), "Protocol": self.selected.get(),
                 "State": 1}
 
-    def filtr_prot(self, data, choice):
-        ftr_data = [data[0]]
-        for line in data[1:-1]:
+    def filtr_prot(self, data):
+        ftr_data = []
+        choice = self.parameters["Protocol"]
+        for line in data:
             if choice == 1 and line.split().count("tcp"):
                 ftr_data.append(line)
             elif choice == 2 and line.split().count("udp"):
                 ftr_data.append(line)
             elif choice == 0:
                 ftr_data.append(line)
-        print(ftr_data) #### debug
         return ftr_data
 
+    def filtr_ip(self, data, parent, uindex, windex, key, part):
+        ftr_data = []
+        if parent.system == "Unix":
+            index = uindex
+        elif parent.system == "Win":
+            index = windex
+        for line in data:
+            if self.parameters[key] in line.split()[index].split(":")[part]:
+                ftr_data.append(line)
+        return ftr_data
+
+
+    def filtr_all(self, data, parent):
+        header = data[0]
+        data = data[1:-1]
+        if self.parameters["Protocol"] != "":
+            data = self.filtr_prot(data)
+        if self.parameters["Local IP"] != "":
+            data = self.filtr_ip(data, parent, 4, 1, "Local IP", 0)
+        if self.parameters["Source IP"] != "":
+            data = self.filtr_ip(data, parent, 5, 2, "Source IP", 0)
+        if self.parameters["Local port"] != "":
+            data = self.filtr_ip(data, parent, 4, 1, "Local port", 1)
+        if self.parameters["Source port"] != "":
+            data = self.filtr_ip(data, parent, 5, 2, "Source port", 1)
+        data.insert(0, header)
+        return data
+
+
     def rst_ftr(self):
-         self.ent_sip.set("")
-         self.ent_lip.set("")
-         self.ent_lpr.set("")
-         self.ent_spr.set("")
-         self.ent_pid.set("")
-         self.selected.set(0)
+        self.ent_sip.delete(0, tk.END)
+        self.ent_lip.delete(0, tk.END)
+        self.ent_lpr.delete(0, tk.END)
+        self.ent_spr.delete(0, tk.END)
+        self.ent_pid.delete(0, tk.END)
+        self.selected.set(0)
 
     def dw_socketlist(self, parent):
         pass
@@ -171,8 +197,6 @@ class Sockets(tk.Frame):
         self.socketbox.delete(0, tk.END)
         if new:
            self.parameters = self.get_filtr()
-        data = self.dw_socketlist(parent)
-        print(self.parameters["Protocol"]) ######Debug
-        data = self.filtr_prot(data, self.parameters["Protocol"])
+        data = self.filtr_all(self.dw_socketlist(parent), parent)
         for line in data:
             self.socketbox.insert(tk.END, line)
