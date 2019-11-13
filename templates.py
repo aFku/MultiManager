@@ -153,14 +153,27 @@ class Sockets(tk.Frame):
                 ftr_data.append(line)
         return ftr_data
 
-    def filtr_ip(self, data, parent, uindex, windex, key, part):
+    def filtr_ip(self, data, parent, uindex, windex, key):
         ftr_data = []
         if parent.system == "Unix":
             index = uindex
         elif parent.system == "Win":
             index = windex
         for line in data:
-            if self.parameters[key] in line.split()[index].split(":")[part]:
+            if "IP" in key:
+                if self.parameters[key] in line.split()[index]:
+                    ftr_data.append(line)
+            elif "port" in key:
+                if self.parameters[key] in line.split()[index].split(":")[-1]:
+                    ftr_data.append(line)
+        return ftr_data
+
+    def filtr_pid(self, data, parent):
+        ftr_data = []
+        for line in data:
+            if parent.system == "Unix" and "pid=" + self.parameters["PID"] in line.split()[-1]:
+                ftr_data.append(line)
+            elif parent.system == "Win" and self.parameters["PID"] in line.split()[-1]:
                 ftr_data.append(line)
         return ftr_data
 
@@ -171,13 +184,15 @@ class Sockets(tk.Frame):
         if self.parameters["Protocol"] != "":
             data = self.filtr_prot(data)
         if self.parameters["Local IP"] != "":
-            data = self.filtr_ip(data, parent, 4, 1, "Local IP", 0)
+            data = self.filtr_ip(data, parent, 4, 1, "Local IP")
         if self.parameters["Source IP"] != "":
-            data = self.filtr_ip(data, parent, 5, 2, "Source IP", 0)
+            data = self.filtr_ip(data, parent, 5, 2, "Source IP")
         if self.parameters["Local port"] != "":
-            data = self.filtr_ip(data, parent, 4, 1, "Local port", 1)
+            data = self.filtr_ip(data, parent, 4, 1, "Local port")
         if self.parameters["Source port"] != "":
-            data = self.filtr_ip(data, parent, 5, 2, "Source port", 1)
+            data = self.filtr_ip(data, parent, 5, 2, "Source port")
+        if self.parameters["PID"] != "":
+            data = self.filtr_pid(data, parent)
         data.insert(0, header)
         return data
 
