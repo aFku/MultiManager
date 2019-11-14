@@ -1,18 +1,18 @@
 # MultiManager
 
-Requirements:\n
--Paramiko (+dependency)\n
+Requirements:
+-Paramiko (+dependency)
 
-Featuers:\n
--Remote access to machine via SSH (Paramiko)\n
--Access to local machine\n
--Socket list preview\n
--Socket list filtering (IP addres, port, PID, protocol, state)\n
--Process list preview\n
--Diffrent process kill options\n
--Many connection in 1 window\n
--Operating System auto-detection\n
--Multiplatform script (Windows/Linux)\n
+Featuers:
+-Remote access to machine via SSH (Paramiko)
+-Access to local machine
+-Socket list preview
+-Socket list filtering (IP addres, port, PID, protocol, state)
+-Process list preview
+-Diffrent process kill options
+-Many connection in 1 window
+-Operating System auto-detection
+-Multiplatform script (Windows/Linux)
 
 
 WARNING! This softwere was not tested against MacOS!
