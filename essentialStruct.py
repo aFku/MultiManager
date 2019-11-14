@@ -4,17 +4,14 @@ from globalMeth import *
 from pagesSSH import Process_ssh, Sockets_ssh
 from pagesLOCAL import Process_local, Sockets_local
 
-session_counter = 0
-pages = ((Process_ssh, Sockets_ssh), (Process_local, Sockets_local))
 
 
 class Session(tk.Frame):
     def __init__(self, controller, *args, **kwargs):
-        global session_counter
         tk.Frame.__init__(self, *args)
         self.pack()
-        self.session_number = session_counter
-        session_counter += 1
+        self.session_number = controller.session_counter
+        controller.session_counter += 1
         self.system = None
         self.controller = controller
         self.frames = {}
@@ -24,23 +21,34 @@ class Session(tk.Frame):
         self.create_frame("Login")
 
     def create_frame(self, choice):
-        global pages
         if choice == "Login":
-            frame = LoginPage(self, self.controller)
-            self.frames[LoginPage] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+            try:
+                frame = LoginPage(self, self.controller)
+                self.frames[LoginPage] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+            except:
+                print("Cannot create Login Page!")
+                self.logout_session()
         elif choice == "Utilities_remote":
-            for page in pages[0]:
-                frame = page(self, self.controller)
-                self.frames[page] = frame
-                frame.grid(row=0, column=0, sticky="nsew")
-            self.show_frame(pages[0][0])
+            for page in self.controller.pages[0]:
+                try:
+                    frame = page(self, self.controller)
+                    self.frames[page] = frame
+                    frame.grid(row=0, column=0, sticky="nsew")
+                except:
+                    print("Cannot create one of the remote utilities page!")
+                    self.logout_session()
+            self.show_frame(self.controller.pages[0][0])
         elif choice == "Utilities_local":
-            for page in pages[1]:
-                frame = page(self, self.controller)
-                self.frames[page] = frame
-                frame.grid(row=0, column=0, sticky="nsew")
-            self.show_frame(pages[1][0])
+            for page in self.controller.pages[1]:
+                try:
+                    frame = page(self, self.controller)
+                    self.frames[page] = frame
+                    frame.grid(row=0, column=0, sticky="nsew")
+                except:
+                    print("Cannot create one of the local utilities page!")
+                    self.logout_session()
+            self.show_frame(self.controller.pages[1][0])
 
     def show_frame(self, page):
         frame = self.frames[page]
@@ -48,7 +56,10 @@ class Session(tk.Frame):
 
     def logout_session(self):
         if self.ssh != None:
-            self.ssh.close()
+            try:
+                self.ssh.close()
+            except:
+                print("Cannot close ssh connection!")
         self.destroy()
         self.controller.sessions[self.session_number] = None
         if len([n for n in self.controller.sessions if n == None]) == len(self.controller.sessions):
@@ -62,9 +73,7 @@ class Session(tk.Frame):
             access = 0
         values = ("Process Manager", "Sockets Display")
         try:
-            if access == 1:
-                menu['values'] = values
-            elif access == 0:
+            if access == 1 or access == 0:
                 menu['values'] = values
             else:
                 raise ValueError()
@@ -73,7 +82,7 @@ class Session(tk.Frame):
         else:
             menu.set("---Page---")
             lbl_menu = tk.Label(frame, text="Menu:")
-            go_to_btn = tk.Button(frame, text="Go to!", command=lambda: self.show_frame(pages[access][menu.current()]))
+            go_to_btn = tk.Button(frame, text="Go to!", command=lambda: self.show_frame(self.controller.pages[access][menu.current()]))
             lbl_menu.grid(column=column, row=row)
             menu.grid(column=column, row=row+1)
             go_to_btn.grid(column=column, row=row+2, pady=2)
@@ -85,6 +94,8 @@ class Controller(tk.Tk):
         self.geometry("667x600")
         self.title("ProcessManager")
         self.sessions = []
+        self.session_counter = 0
+        self.pages = ((Process_ssh, Sockets_ssh), (Process_local, Sockets_local))
         self.tab_control = ttk.Notebook(self)
         self.tab_control.pack(expand=1, fill="both")
         self.create_session()

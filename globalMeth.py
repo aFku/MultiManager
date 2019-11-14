@@ -63,7 +63,6 @@ def check_remote_os(ip, session):
             session.system = "Win"
         else:
             session.system = "Unix"
-        print(session.system) #### DEBUG
 
 
 def decode_winShell(stdout):

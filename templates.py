@@ -183,7 +183,6 @@ class Sockets(tk.Frame):
     def filtr_state(self, data, parent):
         ftr_data = []
         for line in data:
-            #print(line.split()[windex]) #### DEBUG
             if self.parameters["State"] in line.split()[1] and parent.system == "Unix":
                 ftr_data.append(line)
             elif self.parameters["State"] in line.split()[-2] and parent.system == "Win":

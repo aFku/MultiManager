@@ -5,10 +5,8 @@ from globalMeth import *
 class Process_local(Process):
     def __init__(self, parent, controller):
         Process.__init__(self, parent, controller)
-        print("Local Session")####### DEBUG
 
     def dw_processlist(self, parent):
-        print(parent.system)
         if parent.system == "Unix":
             stdout = decode_winShell(subprocess.check_output(["ps", "-aux"]))
         elif parent.system == "Win":

@@ -5,7 +5,6 @@ from globalMeth import *
 class Process_ssh(Process):
     def __init__(self, parent, controller):
         Process.__init__(self, parent, controller)
-        print("SSH Session") #########DEBUG
 
     def dw_processlist(self, parent):
         if parent.system == "Unix":
