@@ -13,7 +13,7 @@ def read_system():
         system = platform
         if system in ("win32", "cygwin"):
             return "Win"
-        elif system in ("aix", "linux", "freebsd"):
+        elif system in ("aix", "linux", "freebsd", "darwin"):
             return "Unix"
         else:
             raise SystemNotFound
