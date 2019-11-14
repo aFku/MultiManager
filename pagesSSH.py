@@ -35,13 +35,18 @@ class Process_ssh(Process):
 class Sockets_ssh(Sockets):
     def __init__(self, parent, controller):
         Sockets.__init__(self, parent, controller)
-        self.update_list(parent)
+        self.update_list(parent, True)
 
     def dw_socketlist(self, parent):
         if parent.system == "Unix":
-            stdin, stdout, stderr = parent.ssh.exec_command("netstat -pnltSu")
+            stdin, stdout, stderr = parent.ssh.exec_command("ss -pnltSu")
+            stdout = decode_winShell(stdout)
         elif parent.system == "Win":
             stdin, stdout, stderr = parent.ssh.exec_command("netstat -anoq")
+            stdout = decode_winShell(stdout)
+            stdout.pop(0)
+            stdout.pop(0)
+            stdout.pop(0)
         else:
             stdout = None
-        return decode_winShell(stdout)
+        return stdout

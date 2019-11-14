@@ -59,7 +59,7 @@ def check_remote_os(ip, session):
         print("Can`t find out os of " + ip)
         session.logout_session()
     else:
-        if "TTL=128" in stdout.strip():
+        if "TTL=128" in stdout.strip() or "ttl=128" in stdout.strip():
             session.system = "Win"
         else:
             session.system = "Unix"

@@ -41,7 +41,10 @@ class Sockets_local(Sockets):
         if parent.system == "Unix":
             stdout = decode_winShell(subprocess.check_output(["ss", "-pnlStu"]))
         elif parent.system == "Win":
-            stdout = decode_winShell(subprocess.check_output(["netstat", "-anoq"]))  ##PROT, LOCALIP, SOURCEIP, STATE, PID
+            stdout = decode_winShell(subprocess.check_output(["netstat", "-anoq"]))##PROT, LOCALIP, SOURCEIP, STATE, PID
+            stdout.pop(0)
+            stdout.pop(0)
+            stdout.pop(0)
         else:
             stdout = None
         return stdout

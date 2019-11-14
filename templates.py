@@ -122,6 +122,9 @@ class Sockets(tk.Frame):
         lbl_stt.grid(column=3, row=1)
         self.cmb_stt = ttk.Combobox(buttonsframe)
         self.cmb_stt.grid(column=3, row=2)
+        self.cmb_stt['values'] = ("All", "ESTAB", "LISTEN", "TIME_WAIT", "CLOSE_WAIT", "FIN_WAIT", "LAST_ACK",
+                                  "CLOSING", "CLOSE", "SYN_SENT", "SYN_RECV", "UNCONN")
+        self.cmb_stt.current(0)
         lbl_pid = tk.Label(buttonsframe, text="PID:")
         lbl_pid.grid(column=3, row=3)
         self.ent_pid = tk.Entry(buttonsframe, width=15)
@@ -139,15 +142,15 @@ class Sockets(tk.Frame):
     def get_filtr(self):
         return {"Source IP": self.ent_sip.get(), "Local IP": self.ent_lip.get(), "Local port": self.ent_lpr.get(),
                 "Source port": self.ent_spr.get(), "PID": self.ent_pid.get(), "Protocol": self.selected.get(),
-                "State": 1}
+                "State": self.cmb_stt.get()}
 
     def filtr_prot(self, data):
         ftr_data = []
         choice = self.parameters["Protocol"]
         for line in data:
-            if choice == 1 and line.split().count("tcp"):
+            if choice == 1 and line.lower().split().count("tcp"):
                 ftr_data.append(line)
-            elif choice == 2 and line.split().count("udp"):
+            elif choice == 2 and line.lower().split().count("udp"):
                 ftr_data.append(line)
             elif choice == 0:
                 ftr_data.append(line)
@@ -177,6 +180,18 @@ class Sockets(tk.Frame):
                 ftr_data.append(line)
         return ftr_data
 
+    def filtr_state(self, data, parent):
+        ftr_data = []
+        for line in data:
+            #print(line.split()[windex]) #### DEBUG
+            if self.parameters["State"] in line.split()[1] and parent.system == "Unix":
+                ftr_data.append(line)
+            elif self.parameters["State"] in line.split()[-2] and parent.system == "Win":
+                ftr_data.append(line)
+            elif self.parameters["State"] == "UNCONN" and len(line.split()) < len(data[0].split()):
+                ftr_data.append(line)
+        return ftr_data
+
 
     def filtr_all(self, data, parent):
         header = data[0]
@@ -193,6 +208,8 @@ class Sockets(tk.Frame):
             data = self.filtr_ip(data, parent, 5, 2, "Source port")
         if self.parameters["PID"] != "":
             data = self.filtr_pid(data, parent)
+        if self.parameters["State"] != "All":
+            data = self.filtr_state(data, parent)
         data.insert(0, header)
         return data
 
